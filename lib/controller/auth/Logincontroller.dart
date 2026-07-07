@@ -102,7 +102,6 @@ class Logincontroller extends GetxController {
             Get.offAllNamed(Approutes.VerifiycodeSignUp, arguments: {
               "email": Email.text,
             });
-            // 
           } else if (status == 3 || status == 5) {
             Get.offAllNamed(Approutes.upgradeRequiredPage);
           } else if (status == 6) {
