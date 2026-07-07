@@ -1,0 +1,106 @@
+import 'package:Saller/controller/Profaile/transaction/Addtransactioncontroller.dart';
+import 'package:Saller/core/constant/Colorapp.dart';
+import 'package:Saller/core/functions/valiedinput.dart';
+import 'package:Saller/view/widget/addItem/CustemButton.dart';
+import 'package:Saller/view/widget/addItem/CustemTextFromFild.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../../core/class/Statusrequest.dart';
+import '../../../core/class/handlingview.dart';
+
+class AddDealer extends StatefulWidget {
+  const AddDealer({super.key});
+
+  @override
+  State<AddDealer> createState() => _AddDealerState();
+}
+
+class _AddDealerState extends State<AddDealer> {
+  AddTransactionController controller = Get.put(AddTransactionController());
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColor.white,
+      appBar: AppBar(
+        title: Text('Add Dealer'.tr,
+            style: Theme.of(context)
+                .textTheme
+                .headlineMedium!
+                .copyWith(color: AppColor.backgroundcolor, fontSize: 24)),
+        backgroundColor: AppColor.white,
+        iconTheme: const IconThemeData(
+          color: AppColor.backgroundcolor,
+        ),
+      ),
+      body: Container(
+        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 5),
+        child: GetBuilder<AddTransactionController>(builder: (controller) {
+          return Form(
+              key: controller.formKey,
+              child: ListView(
+                children: [
+                  Column(
+                    children: [
+                      Custemtextfromfild(
+                        MyController: controller.nameController,
+                        keyboardType: TextInputType.name,
+                        hintText: "Name".tr,
+                        label: "Name".tr,
+                        iconData: Icons.person_outline,
+                        enabled: true,
+                      ),
+                      Custemtextfromfild(
+                        MyController: controller.familyNameController,
+                        keyboardType: TextInputType.name,
+                        hintText: "familyName".tr,
+                        label: "familyName".tr,
+                        iconData: Icons.family_restroom,
+                        enabled: true,
+                      ),
+                      Custemtextfromfild(
+                        MyController: controller.phoneController,
+                        keyboardType: TextInputType.name,
+                        hintText: "Phone Numper".tr,
+                        label: "Phone Numper".tr,
+                        iconData: Icons.phone_outlined,
+                        enabled: true,
+                      ),
+                      Custembutton(
+                        text: "Add".tr,
+                        isLoading:
+                            controller.statusRequest == Statusrequest.loadeng,
+                        onPressed: () {
+                          if (!validInputsnak(controller.nameController.text, 1,
+                              50, "Name".tr)) {
+                            return;
+                          }
+                          if (!validInputsnak(
+                              controller.familyNameController.text,
+                              0,
+                              50,
+                              "FrsetName".tr,
+                              empty: false)) {
+                            return;
+                          }
+                          if (!validInputsnak(controller.phoneController.text,
+                              10, 12, "Phone Numper".tr)) {
+                            return;
+                          }
+
+                          controller.type = 1;
+                          controller.addTransaction();
+                        },
+                        vertical: 10,
+                        horizontal: 10,
+                        paddingvertical: 15,
+                      )
+                    ],
+                  ),
+                ],
+              ));
+        }),
+      ),
+    );
+  }
+}

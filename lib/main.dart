@@ -1,0 +1,63 @@
+import 'package:Saller/core/functions/callback.dart';
+import 'package:Saller/core/functions/fcm.dart';
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:Saller/Bindings/Initialbindings.dart';
+import 'package:Saller/core/localizations/ChengeLocal.dart';
+import 'package:Saller/core/localizations/Translation.dart';
+import 'package:Saller/core/services/Services.dart';
+import 'package:Saller/routes.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+final RouteObserver<ModalRoute<void>> routeObserver =
+    RouteObserver<ModalRoute<void>>();
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await initialServices();
+
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp();
+  }
+  await FcmHelper.initFCM();
+
+  // final syncService = SyncService();
+  // syncService.initSyncListener();
+  await AndroidAlarmManager.initialize();
+
+  final syncForeground = SyncForegroundService();
+  syncForeground.start();
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    LocalController controller = Get.put(LocalController());
+    Get.put(RefreshService());
+    return GetMaterialApp(
+      defaultTransition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 300),
+      navigatorObservers: [routeObserver],
+      translations: MyTranslation(),
+      debugShowCheckedModeBanner: false,
+      title: 'Sillaty',
+      theme: controller.themeData,
+      locale: controller.language,
+      initialBinding: Initialbindings(),
+      getPages: routes,
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+          child: child!,
+        );
+      },
+    );
+  }
+}
