@@ -64,9 +64,11 @@ class Saledata {
         );
 
         final currentQuantity = result[0]["product_quantity"] as String;
+        final type = sale["type_sales"] as int;
+        final quantitySold = double.tryParse(sale["quantity"]?.toString() ?? "0") ?? 0.0;
         final updatedProductData = {
           "uuid": productUuid,
-          "product_quantity": currentQuantity,
+          "quantity_delta": -(type == 1 ? 0.0 : quantitySold),
         };
 
         await _syncService.addToQueue(
@@ -197,11 +199,11 @@ class Saledata {
         );
         await _syncService.addToQueue(
           "products",
-          "update",
           productUuid,
+          "update",
           {
             "uuid": productUuid,
-            'product_quantity': newProductQty,
+            'quantity_delta': -(type == 1 ? 0.0 : diff),
             'updated_at': DateTime.now().toIso8601String()
           },
         );
@@ -252,25 +254,29 @@ class Saledata {
           orElse: () => <String, dynamic>{});
 
       if (product.isNotEmpty) {
-        final newProduct = {
-          'uuid': productUuid,
-          'product_quantity': (type == 1 ? 0 : qty),
+        final restoreProduct = {
           'is_delete': 0,
           'updated_at': DateTime.now().toIso8601String(),
         };
 
         await db.update(
           'products',
-          newProduct,
+          restoreProduct,
           "uuid = ? AND user_id = ?",
           [productUuid, id],
         );
+
+        final syncProduct = {
+          'uuid': productUuid,
+          'is_delete': 0,
+          'updated_at': DateTime.now().toIso8601String(),
+        };
 
         await _syncService.addToQueue(
           'products',
           productUuid,
           'update',
-          newProduct,
+          syncProduct,
         );
 
         final String categoryUuid = product['categoris_uuid']?.toString() ?? '';
@@ -411,7 +417,7 @@ class Saledata {
         'update',
         {
           'uuid': productUuid,
-          'product_quantity': newProductQty,
+          'quantity_delta': (type == 1 ? 0.0 : qty),
         },
       );
 
@@ -479,25 +485,29 @@ class Saledata {
           orElse: () => <String, dynamic>{},
         );
         if (product.isNotEmpty) {
-          final newProduct = {
-            'uuid': productUuid,
-            'product_quantity': (type == 1 ? 0 : qty),
+          final restoreProduct = {
             'is_delete': 0,
             'updated_at': DateTime.now().toIso8601String(),
           };
 
           await db.update(
             'products',
-            newProduct,
+            restoreProduct,
             "uuid = ? AND user_id = ?",
             [productUuid, id],
           );
+
+          final syncProduct = {
+            'uuid': productUuid,
+            'is_delete': 0,
+            'updated_at': DateTime.now().toIso8601String(),
+          };
 
           await _syncService.addToQueue(
             'products',
             productUuid,
             'update',
-            newProduct,
+            syncProduct,
           );
 
           final String categoryUuid =
@@ -566,7 +576,7 @@ class Saledata {
           'update',
           {
             'uuid': productUuid,
-            'product_quantity': newQty,
+            'quantity_delta': (type == 1 ? 0.0 : qty),
           },
         );
 
