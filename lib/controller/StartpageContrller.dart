@@ -29,9 +29,9 @@ class Startpagecontrller extends GetxController {
       if (response["status"] == 1) {
         var sellerData = response["data"]["data"];
         var parentData = sellerData["parent"];
-        
+
         Status = parentData['Status'];
-        
+
         String imageUrl = parentData["logo_stor"] ?? "";
         String fileName = imageUrl.split("/").last;
         String localPath = "${Applink.image}/storage/$imageUrl";
@@ -42,7 +42,7 @@ class Startpagecontrller extends GetxController {
           localPath = await downloadAndCacheImage(localPath, fileName);
         }
         print("==================================$localPath");
-        
+
         if (parentData["logo_stor"] != null) {
           myServices.sharedPreferences!.setString("logo_stor", localPath);
         }
@@ -51,20 +51,33 @@ class Startpagecontrller extends GetxController {
         myServices.sharedPreferences!.setInt("sellerid", sellerData['id']);
         myServices.sharedPreferences!.setString("email", sellerData['email']);
         myServices.sharedPreferences!.setString("name", sellerData["name"]);
-        myServices.sharedPreferences!.setString("phone", parentData["phone_number"]);
-        myServices.sharedPreferences!.setString("family_name", parentData["family_name"]);
-        myServices.sharedPreferences!.setInt("user_notify_status", parentData["user_notify_status"]);
-        
+        myServices.sharedPreferences!
+            .setString("phone", parentData["phone_number"]);
+        myServices.sharedPreferences!
+            .setString("family_name", parentData["family_name"]);
+        myServices.sharedPreferences!
+            .setInt("user_notify_status", parentData["user_notify_status"]);
+
         if (parentData["adresse"] != null) {
-          myServices.sharedPreferences!.setString("adresse", parentData["adresse"]);
+          myServices.sharedPreferences!
+              .setString("adresse", parentData["adresse"]);
         }
         myServices.sharedPreferences!.setInt("Status", parentData["Status"]);
-        
-        print("==================================${parentData["date_experiment"]}");
+
+        print(
+            "==================================${parentData["date_experiment"]}");
         if (parentData["date_experiment"] != null) {
-          myServices.sharedPreferences!.setString("date_experiment", parentData["date_experiment"]);
+          myServices.sharedPreferences!
+              .setString("date_experiment", parentData["date_experiment"]);
           date_experiment = parentData["date_experiment"];
         }
+        if (parentData["sell_type"] != null) {
+          myServices.sharedPreferences!.setInt("sell_type",
+              int.tryParse(parentData["sell_type"] ?? 0.toString()) ?? 0);
+        }
+
+        int sellType = myServices.sharedPreferences!.getInt("sell_type") ?? 0;
+        print("==================================sell type $sellType");
       }
     }
 

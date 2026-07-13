@@ -22,6 +22,7 @@ class Additemscontroller extends GetxController {
   String? selectedtypeuuid;
   String? selectedtype;
   int type = 1;
+  int sellType = Get.find<Myservices>().sharedPreferences?.getInt("sell_type") ?? 1;
 
   final nameController = TextEditingController();
   final barcodeController = TextEditingController();

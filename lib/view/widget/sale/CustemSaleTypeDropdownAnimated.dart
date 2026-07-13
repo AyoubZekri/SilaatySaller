@@ -7,17 +7,20 @@ class CustemSaleTypeDropdownAnimated extends StatelessWidget {
   final Function(int) onSelect;
   final RxBool isExpanded = false.obs;
 
-  final Map<int, String> saleTypes = {
-    1: "تجزئة".tr,
-    2: "نصف جملة".tr,
-    3: "جملة".tr,
-  };
+  late final Map<int, String> saleTypes;
 
   CustemSaleTypeDropdownAnimated({
     super.key,
     required this.selectedSaleType,
     required this.onSelect,
-  });
+    required int maxSellType,
+  }) {
+    saleTypes = {
+      1: "تجزئة".tr,
+      if (maxSellType >= 2) 2: "نصف جملة".tr,
+      if (maxSellType >= 3) 3: "جملة".tr,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {

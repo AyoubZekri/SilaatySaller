@@ -6,10 +6,12 @@ import '../../core/constant/routes.dart';
 import '../../core/functions/Snacpar.dart';
 import '../../data/datasource/Remote/SaleData.dart';
 import '../../data/datasource/Remote/transactiondata.dart';
+import '../../core/services/Services.dart';
 
 class SaleController extends GetxController {
   int? type;
   RxInt saleType = 1.obs; // 1 = Retail, 2 = Half Wholesale, 3 = Wholesale
+  int maxSellType = Get.find<Myservices>().sharedPreferences?.getInt("sell_type") ?? 1;
   RxString selectedCustomer = ''.obs;
   List<String> get customers => [
         if (type != 1) "virtualCustomer".tr,

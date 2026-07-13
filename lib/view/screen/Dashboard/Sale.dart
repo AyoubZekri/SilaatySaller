@@ -76,7 +76,7 @@ class _NewSaleState extends State<NewSale> with SingleTickerProviderStateMixin {
                       ],
                     ),
                   ),
-                  if (controller.type != 1) ...[
+                  if (controller.type != 1 && controller.maxSellType > 1) ...[
                     const SizedBox(width: 10),
                     Expanded(
                       flex: 2,
@@ -89,6 +89,7 @@ class _NewSaleState extends State<NewSale> with SingleTickerProviderStateMixin {
                           const SizedBox(height: 5),
                           CustemSaleTypeDropdownAnimated(
                             selectedSaleType: controller.saleType,
+                            maxSellType: controller.maxSellType,
                             onSelect: (val) {
                               controller.changeSaleType(val);
                             },

@@ -44,6 +44,7 @@ class Edititemcontroller extends GetxController {
   Statusrequest statusrequest = Statusrequest.none;
   String? uuid;
   int? type;
+  int sellType = Get.find<Myservices>().sharedPreferences?.getInt("sell_type") ?? 1;
 
   Myservices myservices = Get.find();
   late int? id = myservices.sharedPreferences?.getInt("id");
