@@ -1,7 +1,8 @@
 import 'package:Saller/core/constant/routes.dart';
 import 'package:Saller/core/services/Services.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../core/class/SyncServer.dart';
+import '../StartpageContrller.dart';
 
 abstract class Homescreencontroller extends GetxController {
   logout();
@@ -9,6 +10,24 @@ abstract class Homescreencontroller extends GetxController {
 
 class HomescreencontrollerImp extends Homescreencontroller {
   Myservices myServices = Get.find();
+  Future<void> _handleLoginSync() async {
+    try {
+      final sync = SyncService();
+
+      final startController = Get.find<Startpagecontrller>();
+      await startController.getUser();
+
+      await sync.syncAll();
+
+      // print("=============");
+      // getstatistics();
+      // print("=============");
+    } catch (e, s) {
+      print("❌ خطأ أثناء المزامنة بعد تسجيل الدخول");
+      print(e);
+      print(s);
+    }
+  }
 
   @override
   logout() {
@@ -25,4 +44,15 @@ class HomescreencontrollerImp extends Homescreencontroller {
     );
   }
 
+  @override
+  void onInit() {
+    final args = Get.arguments;
+    final fromLogin = args != null && args['fromlogin'] == 1;
+
+    if (fromLogin) {
+      _handleLoginSync();
+    }
+
+    super.onInit();
+  }
 }

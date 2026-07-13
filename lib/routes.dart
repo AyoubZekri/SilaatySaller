@@ -1,7 +1,3 @@
-import 'package:Saller/view/screen/Statistice/CustomerSales.dart';
-import 'package:Saller/view/screen/Statistice/LowStock.dart';
-import 'package:Saller/view/screen/Statistice/StockValue.dart';
-import 'package:Saller/view/screen/Statistice/SupplierReports.dart';
 import 'package:Saller/view/screen/invoices/Shwoinvoice.dart';
 import 'package:Saller/view/screen/invoices/invoicesconvict.dart';
 import 'package:Saller/view/screen/Dashboard/Client.dart';
@@ -17,11 +13,7 @@ import 'package:Saller/view/screen/Prodact/items.dart';
 import 'package:Saller/view/screen/Profaile/Convicts.dart';
 import 'package:Saller/view/screen/Profaile/Dealer.dart';
 import 'package:Saller/view/screen/Profaile/necessary.dart';
-import 'package:Saller/view/screen/Report/Report.dart';
-import 'package:Saller/view/screen/Report/ShwoReport.dart';
 import 'package:Saller/view/screen/Setteng/InformationAPP.dart';
-import 'package:Saller/view/screen/Setteng/Notification/Notification.dart';
-import 'package:Saller/view/screen/Setteng/Notification/ShwoNotification.dart';
 import 'package:Saller/view/screen/Setteng/Privacypolicy.dart';
 import 'package:Saller/view/screen/Setteng/Profail.dart';
 import 'package:Saller/view/screen/categoris/Addcat.dart';
@@ -37,9 +29,6 @@ import 'view/screen/Convict/EditConvict.dart';
 import 'view/screen/Dealer/Adddealer.dart';
 import 'view/screen/Dealer/Editdealer.dart';
 import 'view/screen/SplashScreen.dart';
-import 'view/screen/Statistice/PublicFinance.dart';
-import 'view/screen/Statistice/StatisticeReports.dart';
-import 'view/screen/Statistice/StockBalance.dart';
 import 'view/screen/activationExpiredPage.dart';
 import 'view/screen/UpgradeRequiredPage.dart';
 
@@ -55,11 +44,8 @@ List<GetPage<dynamic>> routes = [
   GetPage(name: Approutes.Additem, page: () => const Additem()),
   GetPage(name: Approutes.item, page: () => const Items()),
 
-  GetPage(name: Approutes.notification, page: () => const Notification()),
   GetPage(name: Approutes.Informationapp, page: () => const Informationapp()),
 
-  GetPage(
-      name: Approutes.shwonotification, page: () => const Shwonotification()),
   GetPage(name: Approutes.Privacypolicy, page: () => const Privacypolicy()),
   // GetPage(name: Approutes.Zakat, page: () => const Zakat()),
   GetPage(name: Approutes.Dealer, page: () => const Dealer()),
@@ -77,24 +63,15 @@ List<GetPage<dynamic>> routes = [
 
   GetPage(name: Approutes.necessary, page: () => const Necessary()),
 
-  GetPage(name: Approutes.report, page: () => const Report()),
-  GetPage(name: Approutes.shwoReport, page: () => const Shworeport()),
 
   GetPage(name: Approutes.invoicesall, page: () => const Invoicesall()),
   GetPage(name: Approutes.newSale, page: () => NewSale()),
   GetPage(name: Approutes.profail, page: () => Profail()),
-  GetPage(name: Approutes.statisticereports, page: () => Statisticereports()),
   GetPage(name: Approutes.profailedata, page: () => Profailedata()),
   GetPage(name: Approutes.addProductSale, page: () => AddProductSale()),
   GetPage(name: Approutes.payment, page: () => Payment()),
   GetPage(name: Approutes.client, page: () => Client()),
-  GetPage(name: Approutes.publicfinance, page: () => Publicfinance()),
 
-  GetPage(name: Approutes.customersales, page: () => Customersales()),
-  GetPage(name: Approutes.lowstock, page: () => Lowstock()),
-  GetPage(name: Approutes.stockbalance, page: () => Stockbalance()),
-  GetPage(name: Approutes.stockvalue, page: () => Stockvalue()),
-  GetPage(name: Approutes.supplierreports, page: () => Supplierreports()),
   GetPage(
       name: Approutes.activationExpiredPage,
       page: () => const activationExpiredPage()),

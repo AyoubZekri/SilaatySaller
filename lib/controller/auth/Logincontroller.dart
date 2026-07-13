@@ -80,7 +80,7 @@ class Logincontroller extends GetxController {
           }
           if (response["data"]["sellerData"]["parent"]["sell_type"] != null) {
             myServices.sharedPreferences!.setInt("sell_type",
-                response["data"]["sellerData"]["parent"]["sell_type"]);
+                int.tryParse(response["data"]["sellerData"]["parent"]["sell_type"]?? 0.toString())??0);
           }
 
           myServices.sharedPreferences!

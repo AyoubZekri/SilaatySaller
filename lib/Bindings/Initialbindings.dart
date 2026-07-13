@@ -4,7 +4,6 @@ import 'package:Saller/core/class/Crud.dart';
 import 'package:Saller/core/services/Services.dart';
 import 'package:get/get.dart';
 
-import '../controller/HomeScreen/HomeController.dart';
 
 class Initialbindings extends Bindings {
   @override
@@ -14,6 +13,5 @@ class Initialbindings extends Bindings {
     Get.lazyPut(() => Logincontroller(), fenix: true);
     Get.lazyPut(() => Startpagecontrller(), fenix: true);
     // Get.lazyPut(() => HomescreencontrollerImp());
-    Get.lazyPut(() => Homecontroller());
   }
 }
