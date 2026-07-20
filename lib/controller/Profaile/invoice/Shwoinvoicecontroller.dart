@@ -14,11 +14,10 @@ import 'package:screenshot/screenshot.dart';
 import 'package:barcode_widget/barcode_widget.dart';
 import 'package:image/image.dart' as img;
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
-import 'package:pos_universal_printer/pos_universal_printer.dart';
-
 import '../../../core/constant/Colorapp.dart';
+import 'package:Saller/core/functions/FormatQuantity.dart';
+import 'package:Saller/core/services/Services.dart';
 import '../../../core/functions/Snacpar.dart';
-import '../../../core/services/Services.dart';
 import '../../../data/model/InvoiceModel.dart';
 import '../../../data/model/InvoiceSalesModel.dart';
 
@@ -59,7 +58,7 @@ class Shwoinvoicecontroller extends GetxController {
   }
 
   Editinvoise(String invuuid) async {
-    if (int.parse(paymentPrice.text) > getRemainingAmount()) {
+    if ((double.tryParse(paymentPrice.text) ?? 0.0) > getRemainingAmount()) {
       return showSnackbar(
           "تنبيه".tr, "مبلغ الدفع اكثر من المستحق".tr, Colors.orange);
     }
@@ -169,19 +168,34 @@ class Shwoinvoicecontroller extends GetxController {
         double.tryParse(productSale?.paymentprice.toString() ?? "0") ?? 0;
     final discount =
         double.tryParse(productSale?.discount.toString() ?? "0") ?? 0;
-    final remaining = total - (paid + discount);
-    return remaining < 0 ? 0 : remaining;
+    double remaining = total - (paid + discount);
+    
+    // Fix floating point precision
+    remaining = double.parse(remaining.toStringAsFixed(3));
+    
+    return remaining <= 0 ? 0 : remaining;
   }
 
   @override
   void onInit() {
     final args = Get.arguments;
+    bool autoPrint = false;
     if (args != null) {
       invoices = args["invoice"];
       uuid = invoices?.uuid;
-      paymentpriceinvoise = invoices!.paymentPrice!;
+      paymentpriceinvoise = invoices?.paymentPrice ?? 0;
+      autoPrint = args["autoPrint"] ?? false;
     }
-    Shwoinvoice();
+    
+    if (uuid != null) {
+      Shwoinvoice().then((_) {
+        if (autoPrint) {
+          Future.delayed(const Duration(milliseconds: 500), () {
+            printThermalInvoice();
+          });
+        }
+      });
+    }
     super.onInit();
   }
 
@@ -359,9 +373,7 @@ class Shwoinvoicecontroller extends GetxController {
                   child: pw.Text(
                     "${'نوع البيع'.tr}: ${invoices!.saleType == 3 ? 'جملة'.tr : (invoices!.saleType == 2 ? 'نصف جملة'.tr : 'تجزئة'.tr)}",
                     style: pw.TextStyle(
-                      font: Get.locale?.languageCode == "ar"
-                          ? arabicFont
-                          : englishFont,
+                      font: Get.locale?.languageCode == "ar" ? arabicFont : englishFont,
                       fontSize: 12,
                     ),
                   ),
@@ -711,13 +723,9 @@ class Shwoinvoicecontroller extends GetxController {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text("$label: ",
-              style: const TextStyle(
-                  fontSize: 14, fontFamily: 'Cairo', color: Colors.black)),
+          Text("$label: ", style: const TextStyle(fontSize: 14, fontFamily: 'Cairo', color: Colors.black)),
           Text(value,
-              textAlign: TextAlign.right,
-              style: const TextStyle(
-                  fontSize: 14, fontFamily: 'Cairo', color: Colors.black)),
+              textAlign: TextAlign.right, style: const TextStyle(fontSize: 14, fontFamily: 'Cairo', color: Colors.black)),
         ],
       ),
     );
@@ -825,18 +833,14 @@ class Shwoinvoicecontroller extends GetxController {
                         Text(
                           address,
                           style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontFamily: 'Cairo'),
+                              fontSize: 16, color: Colors.black, fontFamily: 'Cairo'),
                           textAlign: TextAlign.center,
                         ),
                         if (phoneNumber.isNotEmpty)
                           Text(
                             phoneNumber,
                             style: const TextStyle(
-                                fontSize: 15,
-                                color: Colors.black,
-                                fontFamily: 'Cairo'),
+                                fontSize: 15, color: Colors.black, fontFamily: 'Cairo'),
                           ),
                       ],
                     ),
@@ -853,20 +857,16 @@ class Shwoinvoicecontroller extends GetxController {
                     children: [
                       Text(
                         "${'التاريخ'.tr}: ${invoices.date!.substring(0, 10)}",
-                        style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.black,
-                            fontFamily: 'Cairo'),
+                        style:
+                            const TextStyle(fontSize: 14, color: Colors.black, fontFamily: 'Cairo'),
                       ),
                       const SizedBox(width: 5),
                       Text(
                         invoices.date!.length > 16
                             ? invoices.date!.substring(11, 19)
                             : "",
-                        style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.black,
-                            fontFamily: 'Cairo'),
+                        style:
+                            const TextStyle(fontSize: 14, color: Colors.black, fontFamily: 'Cairo'),
                       ),
                     ],
                   ),
@@ -876,18 +876,14 @@ class Shwoinvoicecontroller extends GetxController {
                     children: [
                       Text(
                         "${'رقم الفتورة'.tr}: ${invoices.number}",
-                        style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.black,
-                            fontFamily: 'Cairo'),
+                        style:
+                            const TextStyle(fontSize: 14, color: Colors.black, fontFamily: 'Cairo'),
                       ),
                       const SizedBox(height: 5),
                       Text(
                         "${'الزبون'.tr}: $safeCustomerName",
                         style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.black,
-                            fontFamily: 'Cairo'),
+                            fontSize: 14, color: Colors.black, fontFamily: 'Cairo'),
                         textAlign: TextAlign.start,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -896,9 +892,7 @@ class Shwoinvoicecontroller extends GetxController {
                         Text(
                           "${'نوع البيع'.tr}: ${invoices.saleType == 3 ? 'جملة'.tr : (invoices.saleType == 2 ? 'نصف جملة'.tr : 'تجزئة'.tr)}",
                           style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.black,
-                              fontFamily: 'Cairo'),
+                              fontSize: 14, color: Colors.black, fontFamily: 'Cairo'),
                           textAlign: TextAlign.start,
                         ),
                       ],
@@ -917,36 +911,24 @@ class Shwoinvoicecontroller extends GetxController {
                           flex: 2,
                           child: Text("المنتج".tr,
                               style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                  fontFamily: 'Cairo',
-                                  color: Colors.black))),
+                                  fontWeight: FontWeight.bold, fontSize: 13, fontFamily: 'Cairo', color: Colors.black))),
                       Expanded(
                           flex: 1,
                           child: Text('QTY'.tr,
                               style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                  fontFamily: 'Cairo',
-                                  color: Colors.black))),
+                                  fontWeight: FontWeight.bold, fontSize: 13, fontFamily: 'Cairo', color: Colors.black))),
                       Expanded(
                           flex: 2,
                           child: Text("سعر الوحدة".tr,
                               style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                  fontFamily: 'Cairo',
-                                  color: Colors.black),
+                                  fontWeight: FontWeight.bold, fontSize: 13, fontFamily: 'Cairo', color: Colors.black),
                               textAlign:
                                   isArabic ? TextAlign.left : TextAlign.right)),
                       Expanded(
                           flex: 2,
                           child: Text('السعر الإجمالي'.tr,
                               style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                  fontFamily: 'Cairo',
-                                  color: Colors.black),
+                                  fontWeight: FontWeight.bold, fontSize: 13, fontFamily: 'Cairo', color: Colors.black),
                               textAlign:
                                   isArabic ? TextAlign.left : TextAlign.right)),
                     ],
@@ -966,37 +948,25 @@ class Shwoinvoicecontroller extends GetxController {
                             Expanded(
                                 flex: 2,
                                 child: Text(p.productName,
-                                    style: const TextStyle(
-                                        fontSize: 13,
-                                        fontFamily: 'Cairo',
-                                        color: Colors.black))),
+                                    style: const TextStyle(fontSize: 13, fontFamily: 'Cairo', color: Colors.black))),
                             Expanded(
                                 flex: 1,
                                 child: Text("${p.quantity}",
-                                    style: const TextStyle(
-                                        fontSize: 13,
-                                        fontFamily: 'Cairo',
-                                        color: Colors.black))),
+                                    style: const TextStyle(fontSize: 13, fontFamily: 'Cairo', color: Colors.black))),
                             Expanded(
                                 flex: 2,
-                                child: Text("${p.unitPrice.toStringAsFixed(2)}",
+                                child: Text("${p.unitPrice != null ? formavalue(p.unitPrice!) : ""}",
                                     textAlign: isArabic
                                         ? TextAlign.left
                                         : TextAlign.right,
-                                    style: const TextStyle(
-                                        fontSize: 13,
-                                        fontFamily: 'Cairo',
-                                        color: Colors.black))),
+                                    style: const TextStyle(fontSize: 13, fontFamily: 'Cairo', color: Colors.black))),
                             Expanded(
                                 flex: 2,
-                                child: Text("${p.subtotal.toStringAsFixed(2)}",
+                                child: Text("${p.subtotal != null ? formavalue(p.subtotal!) : ""}",
                                     textAlign: isArabic
                                         ? TextAlign.left
                                         : TextAlign.right,
-                                    style: const TextStyle(
-                                        fontSize: 13,
-                                        fontFamily: 'Cairo',
-                                        color: Colors.black))),
+                                    style: const TextStyle(fontSize: 13, fontFamily: 'Cairo', color: Colors.black))),
                           ],
                         ),
                       )),
@@ -1027,18 +997,12 @@ class Shwoinvoicecontroller extends GetxController {
                       Text(
                         "الباقي".tr,
                         style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Cairo',
-                            color: Colors.black),
+                            fontSize: 22, fontWeight: FontWeight.bold, fontFamily: 'Cairo', color: Colors.black),
                       ),
                       Text(
-                        "${getRemainingAmount().toStringAsFixed(2)} ${'DA'.tr}",
+                        "${formavalue(getRemainingAmount())} ${'DA'.tr}",
                         style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Cairo',
-                            color: Colors.black),
+                            fontSize: 22, fontWeight: FontWeight.bold, fontFamily: 'Cairo', color: Colors.black),
                       ),
                     ],
                   ),
@@ -1055,10 +1019,7 @@ class Shwoinvoicecontroller extends GetxController {
                         Text(
                           "*** ${'THANK YOU'.tr} ***",
                           style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Cairo',
-                              color: Colors.black),
+                              fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Cairo', color: Colors.black),
                         ),
                         const SizedBox(height: 20),
                         if (invoices.uuid != null)
@@ -1214,7 +1175,7 @@ class Shwoinvoicecontroller extends GetxController {
     // =========================
     // إنشاء Canvas بعرض الورق وتوسيط الصورة فيه
     // =========================
-
+    
     // حساب الإزاحة لتوسيط الفاتورة أفقياً داخل الكانفاس
     int offsetX = ((physicalWidthDots - image.width) / 2)
         .clamp(0, physicalWidthDots)
@@ -1258,10 +1219,11 @@ class Shwoinvoicecontroller extends GetxController {
       bytes.addAll([0x1D, 0x76, 0x30, 0x00]);
       bytes.add(widthBytes % 256);
       bytes.add(widthBytes ~/ 256);
-
-      int chunkHeight =
-          (y + 24 > centeredImage.height) ? centeredImage.height - y : 24;
-
+      
+      int chunkHeight = (y + 24 > centeredImage.height)
+          ? centeredImage.height - y
+          : 24;
+          
       bytes.add(chunkHeight % 256);
       bytes.add(chunkHeight ~/ 256);
 
@@ -1292,4 +1254,5 @@ class Shwoinvoicecontroller extends GetxController {
     bytes.addAll([0x1D, 0x56, 0x41, 0x00]); // Cut
     return bytes;
   }
+
 }

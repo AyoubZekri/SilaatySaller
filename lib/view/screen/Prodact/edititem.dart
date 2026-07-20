@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:Saller/LinkApi.dart';
 import 'package:Saller/controller/items/Edititemcontroller.dart';
 import 'package:Saller/core/constant/Colorapp.dart';
+import 'package:Saller/core/functions/FormatQuantity.dart';
 import 'package:Saller/view/widget/addItem/CustemButton.dart';
 import 'package:Saller/view/widget/addItem/CustemDropDownField.dart';
 import 'package:Saller/view/widget/addItem/CustemTextFromFild.dart';
@@ -60,7 +63,7 @@ class _EdititemState extends State<Edititem> {
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(width: 2),
                       ),
-                      child: controller.file == null
+                      child: (controller.file == null && (controller.imageUrl == null || controller.imageUrl!.isEmpty))
                           ? MaterialButton(
                               onPressed: () {
                                 controller.imageupload();
@@ -79,10 +82,15 @@ class _EdititemState extends State<Edititem> {
                                               controller.file!,
                                               fit: BoxFit.cover,
                                             )
-                                          : Image.network(
-                                              "${Applink.image}/storage/${controller.imageUrl}",
-                                              fit: BoxFit.cover,
-                                            ),
+                                            : (controller.imageUrl?.startsWith('/') ?? false) || (controller.imageUrl?.startsWith('file://') ?? false) || (controller.imageUrl?.startsWith('C:') ?? false)
+                                                ? Image.file(
+                                                    File(controller.imageUrl!),
+                                                    fit: BoxFit.cover,
+                                                  )
+                                                : Image.network(
+                                                    "${Applink.image}/storage/${controller.imageUrl}",
+                                                    fit: BoxFit.cover,
+                                                  ),
                                     ),
                                   ),
                                 ),
@@ -133,8 +141,7 @@ class _EdititemState extends State<Edititem> {
                       value: controller.type,
                       onChanged: (val) {
                         if (val != null) {
-                          controller.type = val;
-                          controller.update();
+                            controller.selectType(val);
                         }
                       },
                     ),
@@ -275,8 +282,7 @@ class _EdititemState extends State<Edititem> {
                     ),
                     Custemtextfromfild(
                       MyController: TextEditingController(
-                          text:
-                              controller.priceTotalPurchase.toStringAsFixed(2)),
+                          text: formavalue(controller.priceTotalPurchase)),
                       keyboardType: TextInputType.number,
                       hintText: "إجمالي سعر التكلفة".tr,
                       label: "إجمالي سعر التكلفة".tr,
@@ -285,7 +291,7 @@ class _EdititemState extends State<Edititem> {
                     ),
                     Custemtextfromfild(
                       MyController: TextEditingController(
-                          text: controller.priceTotal.toStringAsFixed(2)),
+                          text: formavalue(controller.priceTotal)),
                       keyboardType: TextInputType.number,
                       hintText: "Selling Prise Total".tr,
                       label: "Selling Prise Total".tr,
@@ -302,9 +308,16 @@ class _EdititemState extends State<Edititem> {
                           return;
                         }
 
-                        if (!validInputsnak(controller.barcodeController.text,
-                            8, 13, "Barcode".tr)) {
-                          return;
+                        if (controller.type == 2) {
+                          if (controller.barcodeController.text.length != 5) {
+                            showSnackbar("تنبيه".tr, "باركود الميزان يجب أن يتكون من 5 أرقام (سيضاف الرقم 25 تلقائياً)".tr, Colors.orange);
+                            return;
+                          }
+                        } else {
+                          if (!validInputsnak(controller.barcodeController.text,
+                              8, 13, "Barcode".tr)) {
+                            return;
+                          }
                         }
 
                         controller.EditProduct();

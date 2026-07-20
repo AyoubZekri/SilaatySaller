@@ -1,6 +1,7 @@
 import 'package:Saller/controller/items/ItemsController.dart';
 import 'package:Saller/core/class/handlingview.dart';
 import 'package:Saller/core/constant/Colorapp.dart';
+import 'package:Saller/core/functions/FormatQuantity.dart';
 import 'package:Saller/view/widget/Home/CustemType.dart';
 import 'package:Saller/view/widget/Home/custemSearch.dart';
 import 'package:flutter/material.dart';
@@ -84,7 +85,7 @@ class _AddProductSaleState extends State<AddProductSale> {
                   double? weight = double.tryParse(val);
                   if (weight != null) {
                     priceController.text =
-                        (weight * unitPrice).toStringAsFixed(2);
+                        formavalue(weight * unitPrice);
                   } else {
                     priceController.clear();
                   }
@@ -350,9 +351,7 @@ class _AddProductSaleState extends State<AddProductSale> {
                                         Body: num.tryParse(
                                                 item.productQuantity ?? '0') ??
                                             0,
-                                        Price: controller
-                                            .getSalePrice(item)
-                                            .toStringAsFixed(2),
+                                        Price: formavalue(controller.getSalePrice(item)),
                                         uuid: item.uuid!,
                                       ),
                                     );

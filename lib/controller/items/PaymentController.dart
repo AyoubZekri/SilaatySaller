@@ -4,9 +4,12 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../core/class/Statusrequest.dart';
+import 'package:Saller/core/class/Statusrequest.dart';
+import 'package:Saller/core/functions/FormatQuantity.dart';
 import '../../core/functions/Snacpar.dart';
 import '../../core/services/Services.dart';
+import '../Profaile/invoice/Shwoinvoicecontroller.dart' as invController;
+import '../../data/model/InvoiceModel.dart' as invModel;
 
 class PaymentController extends GetxController {
   late Map<String, dynamic> args;
@@ -31,7 +34,7 @@ class PaymentController extends GetxController {
   int? sellerId = Get.find<Myservices>().sharedPreferences?.getInt("sellerid");
   Statusrequest statusrequest = Statusrequest.none;
 
-  Future<void> addSale() async {
+  Future<void> addSale({bool printInvoice = false}) async {
     final String uuidinvoice = Uuid().v4();
     print(
         "========================================${DateTime.now().toIso8601String()}");
@@ -79,6 +82,39 @@ class PaymentController extends GetxController {
     if (result["status"] == 1) {
       Get.back(result: true);
       Get.find<RefreshService>().fire();
+
+      if (printInvoice) {
+        try {
+          final tempInvoice = invModel.InvoiceItem(
+            uuid: uuidinvoice,
+            paymentPrice: double.tryParse(paymentController.text) ?? 0.0,
+            name: name,
+            familyName: familyName,
+            date: data["invoies_date"] as String?,
+          );
+
+          var showController = Get.isRegistered<invController.Shwoinvoicecontroller>() 
+              ? Get.find<invController.Shwoinvoicecontroller>()
+              : Get.put(invController.Shwoinvoicecontroller());
+          
+          showController.uuid = uuidinvoice;
+          showController.invoices = tempInvoice;
+          showController.paymentpriceinvoise = tempInvoice.paymentPrice ?? 0.0;
+          
+          // Run in background without awaiting
+          showController.Shwoinvoice().then((_) {
+            showController.printThermalInvoice();
+            Get.delete<invController.Shwoinvoicecontroller>();
+          }).catchError((e) {
+            print("Background print error: $e");
+            Get.delete<invController.Shwoinvoicecontroller>();
+          });
+          
+        } catch (e) {
+          print("Background print setup error: $e");
+        }
+      }
+      
       // showSnackbar("success".tr, "add_success".tr, Colors.green);
     } else {
       showSnackbar("error".tr, "operation_failed".tr, Colors.red);
@@ -114,7 +150,7 @@ class PaymentController extends GetxController {
 
     if (selectedCustomer == "virtualCustomer".tr) {
       paymentController =
-          TextEditingController(text: finalAmount.toStringAsFixed(2));
+          TextEditingController(text: formavalue(finalAmount));
     } else {
       paymentController = TextEditingController(text: "0");
     }
@@ -126,7 +162,7 @@ class PaymentController extends GetxController {
 
     finalAmount = total - discount;
     if (selectedCustomer == "virtualCustomer".tr) {
-      paymentController.text = finalAmount.toStringAsFixed(2);
+      paymentController.text = formavalue(finalAmount);
     }
 
     update();

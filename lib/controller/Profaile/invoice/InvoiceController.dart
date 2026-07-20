@@ -1,5 +1,6 @@
 import 'package:Saller/core/class/Statusrequest.dart';
 import 'package:Saller/core/constant/routes.dart';
+import 'package:Saller/core/functions/FormatQuantity.dart';
 import 'package:Saller/data/datasource/Remote/invoiceData.dart';
 import 'package:Saller/data/model/InvoiceModel.dart';
 import 'package:flutter/material.dart';
@@ -160,7 +161,7 @@ class InvoicesController extends GetxController {
     final total = invoice?.sumPrice ?? 0.0;
     final paid = invoice?.sumPaymentPrice ?? 0.0;
     final remaining = total - paid;
-    return remaining.toStringAsFixed(2);
+    return formavalue(remaining);
   }
 
   @override
